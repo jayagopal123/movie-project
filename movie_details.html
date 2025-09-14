@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Details - MovieFlix</title>
+    <link rel="stylesheet" href="movie_details.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-left">
+                <a href="movie_website.html" class="nav-logo">
+                    <i class="fas fa-film"></i>
+                    <span>MOVIEFLIX</span>
+                </a>
+            </div>
+            <div class="nav-links">
+                <a href="movie_website.html" class="nav-item">Home</a>
+                <a href="#" class="nav-item">TV Shows</a>
+                <a href="#" class="nav-item">Movies</a>
+                <a href="#" class="nav-item">New & Popular</a>
+                <a href="#" class="nav-item">My List</a>
+            </div>
+            <div class="nav-right">
+                <div class="search-container">
+                    <input type="text" class="search-input" placeholder="Search movies...">
+                    <i class="fas fa-search search-icon"></i>
+                </div>
+                <a href="signin.html" class="nav-item">Sign In</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Movie Hero Section -->
+    <div class="movie-hero" id="movieHero">
+        <div class="hero-backdrop"></div>
+        <div class="hero-content">
+            <div class="movie-poster">
+                <img id="moviePoster" src="" alt="Movie Poster">
+                <div class="poster-overlay">
+                    <button class="play-btn">
+                        <i class="fas fa-play"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="movie-info">
+                <h1 id="movieTitle" class="movie-title"></h1>
+                <div class="movie-meta">
+                    <span id="movieYear" class="year"></span>
+                    <span id="movieRuntime" class="runtime"></span>
+                    <span id="movieRating" class="rating"></span>
+                    <span id="movieGenres" class="genres"></span>
+                </div>
+                <p id="movieOverview" class="movie-overview"></p>
+                <div class="movie-stats">
+                    <div class="stat">
+                        <i class="fas fa-star"></i>
+                        <span id="voteAverage"></span>
+                        <small>/10</small>
+                    </div>
+                    <div class="stat">
+                        <i class="fas fa-users"></i>
+                        <span id="voteCount"></span>
+                        <small>votes</small>
+                    </div>
+                    <div class="stat">
+                        <i class="fas fa-calendar"></i>
+                        <span id="releaseDate"></span>
+                    </div>
+                </div>
+                <div class="movie-actions">
+                    <button class="action-btn primary" id="playBtn">
+                        <i class="fas fa-play"></i>
+                        Play
+                    </button>
+                    <button class="action-btn secondary" id="trailerBtn">
+                        <i class="fas fa-film"></i>
+                        Trailer
+                    </button>
+                    <button class="action-btn icon" id="favoriteBtn" title="Add to Favorites">
+                        <i class="fas fa-heart"></i>
+                    </button>
+                    <button class="action-btn icon" id="watchlistBtn" title="Add to Watchlist">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                    <button class="action-btn icon" id="shareBtn" title="Share">
+                        <i class="fas fa-share"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Movie Details Tabs -->
+    <div class="movie-tabs">
+        <div class="tab-container">
+            <button class="tab-btn active" data-tab="overview">
+                <i class="fas fa-info-circle"></i>
+                Overview
+            </button>
+            <button class="tab-btn" data-tab="cast">
+                <i class="fas fa-users"></i>
+                Cast & Crew
+            </button>
+            <button class="tab-btn" data-tab="media">
+                <i class="fas fa-photo-video"></i>
+                Photos & Videos
+            </button>
+            <button class="tab-btn" data-tab="reviews">
+                <i class="fas fa-comments"></i>
+                Reviews
+            </button>
+        </div>
+    </div>
+
+    <!-- Tab Content -->
+    <div class="tab-content">
+        <!-- Overview Tab -->
+        <div class="tab-panel active" id="overview">
+            <div class="content-grid">
+                <div class="main-content">
+                    <section class="section">
+                        <h3>Synopsis</h3>
+                        <p id="synopsis"></p>
+                    </section>
+                    
+                    <section class="section">
+                        <h3>Details</h3>
+                        <div class="details-grid">
+                            <div class="detail-item">
+                                <span class="label">Original Title:</span>
+                                <span id="originalTitle"></span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="label">Status:</span>
+                                <span id="status"></span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="label">Original Language:</span>
+                                <span id="originalLanguage"></span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="label">Budget:</span>
+                                <span id="budget"></span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="label">Revenue:</span>
+                                <span id="revenue"></span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="label">Production Companies:</span>
+                                <span id="productionCompanies"></span>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+                
+                <div class="sidebar">
+                    <section class="section">
+                        <h3>Top Cast</h3>
+                        <div class="cast-preview" id="castPreview">
+                            <!-- Cast preview will be populated here -->
+                        </div>
+                        <button class="view-all-btn" onclick="showTab('cast')">
+                            View Full Cast & Crew
+                        </button>
+                    </section>
+                    
+                    <section class="section">
+                        <h3>Keywords</h3>
+                        <div class="keywords" id="keywords">
+                            <!-- Keywords will be populated here -->
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cast & Crew Tab -->
+        <div class="tab-panel" id="cast">
+            <div class="cast-section">
+                <h3>Cast</h3>
+                <div class="cast-grid" id="castGrid">
+                    <!-- Cast will be populated here -->
+                </div>
+            </div>
+            
+            <div class="crew-section">
+                <h3>Crew</h3>
+                <div class="crew-grid" id="crewGrid">
+                    <!-- Crew will be populated here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Media Tab -->
+        <div class="tab-panel" id="media">
+            <div class="media-section">
+                <h3>Videos</h3>
+                <div class="video-grid" id="videoGrid">
+                    <!-- Videos will be populated here -->
+                </div>
+            </div>
+            
+            <div class="media-section">
+                <h3>Photos</h3>
+                <div class="photo-grid" id="photoGrid">
+                    <!-- Photos will be populated here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Reviews Tab -->
+        <div class="tab-panel" id="reviews">
+            <div class="reviews-section">
+                <div class="reviews-header">
+                    <h3>User Reviews</h3>
+                    <div class="review-stats">
+                        <span id="reviewCount">0 reviews</span>
+                    </div>
+                </div>
+                <div class="reviews-list" id="reviewsList">
+                    <!-- Reviews will be populated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recommendations Section -->
+    <div class="recommendations-section">
+        <div class="section-header">
+            <h3>More Like This</h3>
+        </div>
+        <div class="recommendations-grid" id="recommendationsGrid">
+            <!-- Recommendations will be populated here -->
+        </div>
+    </div>
+
+    <!-- Trailer Modal -->
+    <div class="modal" id="trailerModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Movie Trailer</h3>
+                <button class="close-btn" onclick="closeModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="video-container" id="videoContainer">
+                    <!-- Video will be embedded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div class="loading-spinner" id="loadingSpinner">
+        <div class="spinner"></div>
+    </div>
+
+    <script src="movie_details.js"></script>
+</body>
+</html>

@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MovieFlix - Watch Movies Online</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="movie_website.css">
+    <style>
+        /* --- Modern, Attractive, Eye-Catching Stylesheet --- */
+  
+
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-links">
+            <a href="#" class="logo">MOVIEFLIX</a>
+            <a href="#" class="nav-item">Home</a>
+            <a href="#" class="nav-item">TV Shows</a>
+            <a href="#" class="nav-item">Movies</a>
+            <a href="#" class="nav-item">New & Popular</a>
+            <a href="#" class="nav-item">My List</a>
+            <a href="signin.html" class="nav-item">Sign In</a>
+            <div class="search-container"> 
+                <input type="text" class="search-input" placeholder="Search movies...">
+                <i class="fas fa-search search-icon" aria-hidden="true"></i>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Category Filters -->
+    <div class="category-filters">
+        <button class="filter-btn active">All</button>
+        <button class="filter-btn">Action</button>
+        <button class="filter-btn">Drama</button>
+        <button class="filter-btn">Sci-Fi</button>
+        <button class="filter-btn">Comedy</button>
+        <button class="filter-btn">Horror</button>
+    </div>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1 class="hero-title">Inception</h1>
+            <p class="hero-description">
+                A thief who steals corporate secrets through dream-sharing technology is given the inverse task of planting an idea into the mind of a C.E.O.
+            </p>
+            <div class="hero-buttons">
+                <button class="btn btn-play"><i class="fas fa-play"></i> Play</button>
+                <button class="btn btn-more"><i class="fas fa-info-circle"></i> More Info</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Continue Watching Section (populated via JS) -->
+    <section class="movie-section continue-watching" style="display:none;">
+        <h2 class="section-title">Continue Watching</h2>
+        <button class="scroll-btn left">&#10094;</button>
+        <div class="movie-row"></div>
+        <button class="scroll-btn right">&#10095;</button>
+    </section>
+
+    <!-- Trending Now Section -->
+    <section class="movie-section">
+        <h2 class="section-title">Trending Now</h2>
+        <button class="scroll-btn left">&#10094;</button> <!-- Left arrow -->
+        <div class="movie-row"></div>
+        <button class="scroll-btn right">&#10095;</button> <!-- Right arrow -->
+    </section>
+
+    <!-- Second section will be injected/updated by JS from API -->
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Company</h3>
+                <a href="#" id="footer-about">About Us</a>
+                <a href="#" id="footer-careers">Careers</a>
+                <a href="mailto:support@movieflix.example" id="footer-contact">Contact Us</a>
+            </div>
+            <div class="footer-section">
+                <h3>Help</h3>
+                <a href="#" id="footer-faq">FAQ</a>
+                <a href="#" id="footer-device">Device Support</a>
+                <a href="#" id="footer-legal">Legal Notices</a>
+            </div>
+            <div class="footer-section">
+                <h3>Account</h3>
+                <a href="#" id="footer-account">My Account</a>
+                <a href="#" id="footer-signout">Sign Out</a>
+                <a href="#" id="footer-subscribe">Subscribe</a>
+            </div>
+            <div class="footer-section">
+                <h3>Follow Us</h3>
+                <a href="https://www.facebook.com" target="_blank" rel="noopener noreferrer"><i class="fab fa-facebook"></i> Facebook</a>
+                <a href="https://www.twitter.com" target="_blank" rel="noopener noreferrer"><i class="fab fa-twitter"></i> Twitter</a>
+                <a href="https://www.instagram.com" target="_blank" rel="noopener noreferrer"><i class="fab fa-instagram"></i> Instagram</a>
+            </div>
+        </div>
+    </footer>
+
+
+        <!-- Dynamic Movie Details Modal -->
+        <div id="movieDetailsModal" class="movie-details-modal" style="display:none;">
+            <div class="movie-details-page">
+                <button id="closeMovieDetails" style="position:absolute;top:20px;right:30px;font-size:2rem;background:none;border:none;color:white;z-index:1001;cursor:pointer;">&times;</button>
+                <section class="movie-hero">
+                    <div class="hero-backdrop" id="modal-hero-backdrop"></div>
+                    <div class="hero-content">
+                        <div class="movie-poster">
+                            <img id="modal-movie-poster" src="" alt="Movie Poster">
+                        </div>
+                        <div class="movie-info">
+                            <h1 class="movie-title" id="modal-movie-title"></h1>
+                            <div class="movie-meta">
+                                <span class="rating" id="modal-movie-rating"></span>
+                                <span class="year" id="modal-movie-year"></span>
+                                <span class="runtime" id="modal-movie-runtime"></span>
+                                <span class="genre" id="modal-movie-genre"></span>
+                            </div>
+                            <p class="movie-description" id="modal-movie-description"></p>
+                            <div class="action-buttons">
+                                <button class="btn-play">▶ Play</button>
+                                <button class="btn-trailer">🎬 Trailer</button>
+                                <button class="btn-watchlist">+ My List</button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <section class="details-section">
+                    <div class="details-grid">
+                        <div class="main-details">
+                            <h2>About This Movie</h2>
+                            <p class="full-description" id="modal-full-description"></p>
+                            <div class="cast-crew">
+                                <h3>Cast</h3>
+                                <div class="cast-list" id="modal-cast-list"></div>
+                            </div>
+                        </div>
+                        <div class="side-details" id="modal-side-details">
+                        </div>
+                    </div>
+                </section>
+                <section class="similar-movies">
+                    <h2>More Like This</h2>
+                    <div class="similar-grid" id="modal-similar-grid"></div>
+                </section>
+            </div>
+        </div>
+
+    <!-- Trailer Modal -->
+    <div class="trailer-modal" style="display: none;">
+        <div class="trailer-container">
+            <button class="close-trailer">&times;</button>
+            <iframe width="800" height="450" frameborder="0" allowfullscreen></iframe>
+        </div>
+    </div>
+
+    <!-- Authentication Modal -->
+    <div class="auth-modal" style="display: none;">
+        <div class="auth-container">
+            <button class="close-auth" onclick="toggleAuth()">&times;</button>
+            <h2>Sign In</h2>
+            <form class="auth-form">
+                <input type="email" placeholder="Email" required>
+                <input type="password" placeholder="Password" required>
+                <button type="submit">Sign In</button>
+                <p>New to MovieFlix? <a href="#" onclick="toggleSignup()">Sign up now</a></p>
+            </form>
+        </div>
+    </div>
+    <script src="script_movie_front_page.js"></script>
+
+
+    <script>
+    // Helper: Get movie data (stub, replace with real API)
+    /*function getMovieData(card) {
+        // Example: extract from card, or fetch from API
+        return {
+            title: card.querySelector('.movie-title')?.textContent || 'Unknown',
+            poster: card.querySelector('img')?.src || '',
+            backdrop: card.querySelector('img')?.src || '',
+            rating: card.querySelector('.movie-rating span')?.textContent || '',
+            year: '2010', // Example static, replace with real
+            runtime: '148 min', // Example static
+            genre: 'Sci-Fi, Thriller', // Example static
+            description: card.querySelector('.movie-description')?.textContent || 'No description available.',
+            fullDescription: card.querySelector('.movie-description')?.textContent || 'No description available.',
+            cast: [
+                { actor: 'Leonardo DiCaprio', character: 'Dom Cobb' },
+                { actor: 'Marion Cotillard', character: 'Mal' }
+            ],
+            sideDetails: [
+                { label: 'Director', value: 'Christopher Nolan' },
+                { label: 'Writers', value: 'Christopher Nolan' },
+                { label: 'Studio', value: 'Warner Bros.' }
+            ],
+            similar: [
+                { title: 'Interstellar', poster: 'https://image.tmdb.org/t/p/w500/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg' },
+                { title: 'The Matrix', poster: 'https://image.tmdb.org/t/p/w500/f89U3ADr1oiB1s9GkdPOEpXUk5H.jpg' }
+            ]
+        };
+    }
+
+    // Open modal with movie details
+    function openMovieDetails(data) {
+        document.getElementById('modal-movie-title').textContent = data.title;
+        document.getElementById('modal-movie-poster').src = data.poster;
+        document.getElementById('modal-hero-backdrop').style.backgroundImage = `url('${data.backdrop}')`;
+        document.getElementById('modal-movie-rating').textContent = `★ ${data.rating}`;
+        document.getElementById('modal-movie-year').textContent = data.year;
+        document.getElementById('modal-movie-runtime').textContent = data.runtime;
+        document.getElementById('modal-movie-genre').textContent = data.genre;
+        document.getElementById('modal-movie-description').textContent = data.description;
+        document.getElementById('modal-full-description').textContent = data.fullDescription;
+
+        // Cast
+        const castList = document.getElementById('modal-cast-list');
+        castList.innerHTML = '';
+        data.cast.forEach(c => {
+            const div = document.createElement('div');
+            div.className = 'cast-member';
+            div.innerHTML = `<span class="actor">${c.actor}</span> <span class="character">${c.character}</span>`;
+            castList.appendChild(div);
+        });
+
+        // Side details
+        const sideDetails = document.getElementById('modal-side-details');
+        sideDetails.innerHTML = '';
+        data.sideDetails.forEach(d => {
+            const div = document.createElement('div');
+            div.className = 'detail-item';
+            div.innerHTML = `<strong>${d.label}:</strong> ${d.value}`;
+            sideDetails.appendChild(div);
+        });
+
+        // Similar movies
+        const similarGrid = document.getElementById('modal-similar-grid');
+        similarGrid.innerHTML = '';
+        data.similar.forEach(s => {
+            const div = document.createElement('div');
+            div.className = 'similar-card';
+            div.innerHTML = `<img src="${s.poster}" alt="${s.title}"><div style="padding:0.5rem;color:white;text-align:center;">${s.title}</div>`;
+            similarGrid.appendChild(div);
+        });
+
+        document.getElementById('movieDetailsModal').style.display = 'block';
+        document.body.style.overflow = 'hidden';
+    }
+
+    // Close modal
+    document.getElementById('closeMovieDetails').onclick = function() {
+        document.getElementById('movieDetailsModal').style.display = 'none';
+        document.body.style.overflow = '';
+    };
+
+    // Attach click event to movie cards
+    document.querySelectorAll('    function getWatchlist() {
+        return JSON        function getWatchlist() {
+            return JSON.parse(localStorage.getItem('watchlist') || '[]');
+        }
+        
+        function setWatchlist(watchlist) {
+            localStorage.setItem('watchlist', JSON.stringify(watchlist));
+        }').forEach(card => {
+        card.addEventListener('click', function(e) {
+            // Prevent default if anchor
+            if (e.target.tagName === 'A') return;
+            const data = getMovieData(card);
+            openMovieDetails(data);
+        });
+    });*/
+    </script>
+   
+
+</body>
+</html>

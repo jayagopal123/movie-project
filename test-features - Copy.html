@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Features - MovieFlix</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: #0a0a0a; color: #ffffff; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .header { text-align: center; margin-bottom: 40px; }
+        .header h1 { color: #e50914; font-size: 2.5rem; margin-bottom: 10px; }
+        .feature-section { background: #1a1a1a; padding: 20px; margin-bottom: 20px; border-radius: 8px; }
+        .feature-section h2 { color: #e50914; margin-bottom: 15px; }
+        .test-button { background: #e50914; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; margin: 5px; }
+        .test-button:hover { background: #ff1a1a; }
+        .result { background: #2a2a2a; padding: 10px; margin: 10px 0; border-radius: 4px; font-family: monospace; }
+        .input-group { margin: 10px 0; }
+        .input-group input { padding: 8px; margin: 5px; border-radius: 4px; border: 1px solid #333; background: #2a2a2a; color: white; }
+        .success { color: #28a745; }
+        .error { color: #dc3545; }
+        .info { color: #17a2b8; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎬 MovieFlix Feature Test</h1>
+            <p>Test the OTP Authentication and Subscription System</p>
+        </div>
+
+        <!-- OTP Authentication Test -->
+        <div class="feature-section">
+            <h2>🔐 OTP Authentication Test</h2>
+            <p>Test the OTP system by sending and verifying OTP codes.</p>
+            
+            <div class="input-group">
+                <input type="email" id="otpEmail" placeholder="Enter your email" value="test@example.com">
+                <button class="test-button" onclick="sendOTP()">Send OTP</button>
+            </div>
+            
+            <div class="input-group">
+                <input type="text" id="otpCode" placeholder="Enter 6-digit OTP" maxlength="6">
+                <button class="test-button" onclick="verifyOTP()">Verify OTP</button>
+            </div>
+            
+            <div id="otpResult" class="result" style="display: none;"></div>
+        </div>
+
+        <!-- Subscription Plans Test -->
+        <div class="feature-section">
+            <h2>💳 Subscription Plans Test</h2>
+            <p>Test the subscription system and view available plans.</p>
+            
+            <button class="test-button" onclick="getPlans()">Get Subscription Plans</button>
+            <button class="test-button" onclick="getCurrentSubscription()">Get Current Subscription</button>
+            <button class="test-button" onclick="window.open('subscription.html', '_blank')">Open Subscription Page</button>
+            
+            <div id="subscriptionResult" class="result" style="display: none;"></div>
+        </div>
+
+        <!-- Payment Test -->
+        <div class="feature-section">
+            <h2>💰 Payment System Test</h2>
+            <p>Test the payment gateway integration (requires authentication).</p>
+            
+            <div class="input-group">
+                <select id="planType">
+                    <option value="monthly">Monthly Plan (₹299)</option>
+                    <option value="yearly">Yearly Plan (₹2999)</option>
+                </select>
+                <button class="test-button" onclick="createPaymentOrder()">Create Payment Order</button>
+            </div>
+            
+            <div id="paymentResult" class="result" style="display: none;"></div>
+        </div>
+
+        <!-- API Status Test -->
+        <div class="feature-section">
+            <h2>🔍 API Status Test</h2>
+            <p>Check if all API endpoints are working.</p>
+            
+            <button class="test-button" onclick="testAllAPIs()">Test All APIs</button>
+            
+            <div id="apiResult" class="result" style="display: none;"></div>
+        </div>
+
+        <!-- Quick Links -->
+        <div class="feature-section">
+            <h2>🔗 Quick Links</h2>
+            <button class="test-button" onclick="window.location.href='movie_website.html'">Go to Main Website</button>
+            <button class="test-button" onclick="window.location.href='subscription.html'">Go to Subscription Page</button>
+            <button class="test-button" onclick="window.location.href='signin.html'">Go to Sign In Page</button>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:5000/api';
+
+        // Utility function to show results
+        function showResult(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            element.style.display = 'block';
+            element.className = `result ${type}`;
+            element.textContent = message;
+        }
+
+        // Test OTP sending
+        async function sendOTP() {
+            const email = document.getElementById('otpEmail').value;
+            if (!email) {
+                showResult('otpResult', 'Please enter an email address', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/auth/send-otp`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, type: 'email' })
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showResult('otpResult', `✅ OTP sent successfully! ${data.otp ? `OTP: ${data.otp}` : ''}`, 'success');
+                } else {
+                    showResult('otpResult', `❌ Error: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                showResult('otpResult', `❌ Network error: ${error.message}`, 'error');
+            }
+        }
+
+        // Test OTP verification
+        async function verifyOTP() {
+            const email = document.getElementById('otpEmail').value;
+            const otp = document.getElementById('otpCode').value;
+            
+            if (!email || !otp) {
+                showResult('otpResult', 'Please enter both email and OTP', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/auth/verify-otp`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, otp, type: 'email' })
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showResult('otpResult', '✅ OTP verified successfully!', 'success');
+                } else {
+                    showResult('otpResult', `❌ Error: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                showResult('otpResult', `❌ Network error: ${error.message}`, 'error');
+            }
+        }
+
+        // Test subscription plans
+        async function getPlans() {
+            try {
+                const response = await fetch(`${API_BASE}/subscriptions/plans`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    const plansText = data.plans.map(plan => 
+                        `${plan.name}: ₹${plan.price} (${plan.duration})`
+                    ).join('\n');
+                    showResult('subscriptionResult', `✅ Available Plans:\n${plansText}`, 'success');
+                } else {
+                    showResult('subscriptionResult', `❌ Error: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                showResult('subscriptionResult', `❌ Network error: ${error.message}`, 'error');
+            }
+        }
+
+        // Test current subscription
+        async function getCurrentSubscription() {
+            const token = localStorage.getItem('movieflix-token');
+            if (!token) {
+                showResult('subscriptionResult', '❌ Please sign in first to check subscription', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/subscriptions/current`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
+                
+                if (response.ok) {
+                    if (data.subscription) {
+                        showResult('subscriptionResult', `✅ Current Subscription: ${data.subscription.plan_type} (Expires: ${data.subscription.end_date})`, 'success');
+                    } else {
+                        showResult('subscriptionResult', 'ℹ️ No active subscription found', 'info');
+                    }
+                } else {
+                    showResult('subscriptionResult', `❌ Error: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                showResult('subscriptionResult', `❌ Network error: ${error.message}`, 'error');
+            }
+        }
+
+        // Test payment order creation
+        async function createPaymentOrder() {
+            const token = localStorage.getItem('movieflix-token');
+            if (!token) {
+                showResult('paymentResult', '❌ Please sign in first to create payment order', 'error');
+                return;
+            }
+
+            const planType = document.getElementById('planType').value;
+
+            try {
+                const response = await fetch(`${API_BASE}/payments/create-order`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ planType })
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showResult('paymentResult', `✅ Payment order created!\nOrder ID: ${data.orderId}\nAmount: ₹${data.amount/100}`, 'success');
+                } else {
+                    showResult('paymentResult', `❌ Error: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                showResult('paymentResult', `❌ Network error: ${error.message}`, 'error');
+            }
+        }
+
+        // Test all APIs
+        async function testAllAPIs() {
+            const results = [];
+            
+            // Test subscription plans API
+            try {
+                const response = await fetch(`${API_BASE}/subscriptions/plans`);
+                if (response.ok) {
+                    results.push('✅ Subscription Plans API: Working');
+                } else {
+                    results.push('❌ Subscription Plans API: Failed');
+                }
+            } catch (error) {
+                results.push('❌ Subscription Plans API: Network Error');
+            }
+
+            // Test OTP send API
+            try {
+                const response = await fetch(`${API_BASE}/auth/send-otp`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: 'test@example.com', type: 'email' })
+                });
+                if (response.ok) {
+                    results.push('✅ OTP Send API: Working');
+                } else {
+                    results.push('❌ OTP Send API: Failed');
+                }
+            } catch (error) {
+                results.push('❌ OTP Send API: Network Error');
+            }
+
+            // Test TMDB proxy
+            try {
+                const response = await fetch(`${API_BASE}/tmdb/movie/popular`);
+                if (response.ok) {
+                    results.push('✅ TMDB Proxy API: Working');
+                } else {
+                    results.push('❌ TMDB Proxy API: Failed');
+                }
+            } catch (error) {
+                results.push('❌ TMDB Proxy API: Network Error');
+            }
+
+            showResult('apiResult', results.join('\n'), 'info');
+        }
+
+        // Auto-test on page load
+        window.addEventListener('load', function() {
+            showResult('apiResult', '🔍 Click "Test All APIs" to check system status', 'info');
+        });
+    </script>
+</body>
+</html>
+

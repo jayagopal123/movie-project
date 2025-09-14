@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subscription Plans - MovieFlix</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #0a0a0a; color: #ffffff; }
+        .navbar { background: rgba(0,0,0,0.9); padding: 1rem 2rem; position: fixed; top: 0; width: 100%; z-index: 1000; }
+        .nav-container { display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto; }
+        .nav-logo { display: flex; align-items: center; gap: 0.5rem; text-decoration: none; color: #e50914; font-weight: 700; font-size: 1.5rem; }
+        .main-container { max-width: 1200px; margin: 100px auto 0; padding: 2rem; }
+        .page-header { text-align: center; margin-bottom: 3rem; }
+        .page-title { font-size: 2.5rem; font-weight: 700; margin-bottom: 1rem; color: #e50914; }
+        .plans-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 2rem; }
+        .plan-card { background: #1a1a1a; border-radius: 16px; padding: 2rem; border: 2px solid #333; transition: all 0.3s ease; }
+        .plan-card:hover { border-color: #e50914; transform: translateY(-5px); }
+        .plan-card.popular { border-color: #e50914; }
+        .plan-name { font-size: 1.5rem; font-weight: 700; margin-bottom: 0.5rem; }
+        .plan-price { font-size: 3rem; font-weight: 800; color: #e50914; margin-bottom: 0.5rem; }
+        .subscribe-btn { width: 100%; padding: 1rem; background: #e50914; color: white; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: 600; cursor: pointer; }
+        .subscribe-btn:hover { background: #ff1a1a; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="movie_website.html" class="nav-logo">
+                <i class="fas fa-film"></i>
+                <span>MOVIEFLIX</span>
+            </a>
+        </div>
+    </nav>
+
+    <div class="main-container">
+        <div class="page-header">
+            <h1 class="page-title">Choose Your Plan</h1>
+            <p>Unlock unlimited access to thousands of movies and TV shows.</p>
+        </div>
+
+        <div class="plans-container" id="plansContainer">
+            <!-- Plans will be loaded here -->
+        </div>
+
+        <!-- Payment Methods Section -->
+        <div class="payment-section" style="margin-top: 3rem; padding: 2rem; background: #1a1a1a; border-radius: 16px;">
+            <h2 style="text-align: center; margin-bottom: 2rem; color: #e50914;">Payment Methods</h2>
+            <div class="payment-methods-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                <div class="payment-method" style="background: #2a2a2a; padding: 1rem; border-radius: 8px; text-align: center; cursor: pointer;" onclick="testPaymentMethod('UPI')">
+                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">📱</div>
+                    <div style="font-weight: 600;">UPI</div>
+                    <div style="font-size: 0.9rem; color: #ccc;">Google Pay, PhonePe, Paytm</div>
+                </div>
+                <div class="payment-method" style="background: #2a2a2a; padding: 1rem; border-radius: 8px; text-align: center; cursor: pointer;" onclick="testPaymentMethod('Net Banking')">
+                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">🏦</div>
+                    <div style="font-weight: 600;">Net Banking</div>
+                    <div style="font-size: 0.9rem; color: #ccc;">All Major Banks</div>
+                </div>
+                <div class="payment-method" style="background: #2a2a2a; padding: 1rem; border-radius: 8px; text-align: center; cursor: pointer;" onclick="testPaymentMethod('Card')">
+                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">💳</div>
+                    <div style="font-weight: 600;">Credit/Debit Card</div>
+                    <div style="font-size: 0.9rem; color: #ccc;">Visa, MasterCard, RuPay</div>
+                </div>
+                <div class="payment-method" style="background: #2a2a2a; padding: 1rem; border-radius: 8px; text-align: center; cursor: pointer;" onclick="testPaymentMethod('Wallet')">
+                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">👛</div>
+                    <div style="font-weight: 600;">Digital Wallets</div>
+                    <div style="font-size: 0.9rem; color: #ccc;">Amazon Pay, Freecharge</div>
+                </div>
+                <div class="payment-method" style="background: #2a2a2a; padding: 1rem; border-radius: 8px; text-align: center; cursor: pointer;" onclick="testPaymentMethod('EMI')">
+                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">💳</div>
+                    <div style="font-weight: 600;">EMI</div>
+                    <div style="font-size: 0.9rem; color: #ccc;">No Cost EMI Available</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script>
+        // Basic functionality will be added here
+        document.addEventListener('DOMContentLoaded', function() {
+            loadPlans();
+        });
+
+        async function loadPlans() {
+            try {
+                const response = await fetch('http://localhost:5000/api/subscriptions/plans');
+                const data = await response.json();
+                renderPlans(data.plans);
+            } catch (error) {
+                console.error('Failed to load plans:', error);
+            }
+        }
+
+        function renderPlans(plans) {
+            const container = document.getElementById('plansContainer');
+            container.innerHTML = plans.map(plan => `
+                <div class="plan-card ${plan.id === 'yearly' ? 'popular' : ''}">
+                    <h3 class="plan-name">${plan.name}</h3>
+                    <div class="plan-price">₹${plan.price}</div>
+                    <p>${plan.duration}</p>
+                    <ul>
+                        ${plan.features.map(feature => `<li>${feature}</li>`).join('')}
+                    </ul>
+                    <button class="subscribe-btn" onclick="subscribeToPlan('${plan.id}')">
+                        Subscribe Now
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        async function subscribeToPlan(planId) {
+            // Check if user is authenticated
+            const token = localStorage.getItem('movieflix-token');
+            if (!token) {
+                alert('Please sign in to subscribe');
+                window.location.href = 'movie_website.html';
+                return;
+            }
+
+            try {
+                // Create payment order
+                const response = await fetch('http://localhost:5000/api/payments/create-order', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ planType: planId })
+                });
+
+                const orderData = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(orderData.error || 'Failed to create order');
+                }
+
+                // Initialize Razorpay payment with all payment methods
+                const options = {
+                    key: orderData.keyId,
+                    amount: orderData.amount,
+                    currency: orderData.currency,
+                    name: 'MovieFlix',
+                    description: `${planId === 'monthly' ? 'Monthly' : 'Yearly'} Subscription`,
+                    order_id: orderData.orderId,
+                    handler: function(response) {
+                        verifyPayment(response, planId);
+                    },
+                    prefill: {
+                        name: 'User Name',
+                        email: 'user@example.com'
+                    },
+                    theme: {
+                        color: '#e50914'
+                    },
+                    // Enable all payment methods
+                    config: {
+                        display: {
+                            blocks: {
+                                upi: {
+                                    name: "Pay using UPI",
+                                    instruments: [
+                                        {
+                                            method: "upi"
+                                        }
+                                    ]
+                                },
+                                netbanking: {
+                                    name: "Pay using Net Banking",
+                                    instruments: [
+                                        {
+                                            method: "netbanking"
+                                        }
+                                    ]
+                                },
+                                card: {
+                                    name: "Pay using Card",
+                                    instruments: [
+                                        {
+                                            method: "card"
+                                        }
+                                    ]
+                                },
+                                wallet: {
+                                    name: "Pay using Wallet",
+                                    instruments: [
+                                        {
+                                            method: "wallet"
+                                        }
+                                    ]
+                                },
+                                emi: {
+                                    name: "Pay using EMI",
+                                    instruments: [
+                                        {
+                                            method: "emi"
+                                        }
+                                    ]
+                                }
+                            },
+                            sequence: ["block.upi", "block.netbanking", "block.card", "block.wallet", "block.emi"],
+                            preferences: {
+                                show_default_blocks: false
+                            }
+                        }
+                    }
+                };
+
+                const rzp = new Razorpay(options);
+                rzp.open();
+                
+            } catch (error) {
+                console.error('Subscription error:', error);
+                alert('Failed to process subscription: ' + error.message);
+            }
+        }
+
+        async function verifyPayment(paymentResponse, planId) {
+            try {
+                const response = await fetch('http://localhost:5000/api/payments/verify', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('movieflix-token')}`
+                    },
+                    body: JSON.stringify({
+                        orderId: paymentResponse.razorpay_order_id,
+                        paymentId: paymentResponse.razorpay_payment_id,
+                        signature: paymentResponse.razorpay_signature,
+                        planType: planId
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || 'Payment verification failed');
+                }
+
+                alert('Subscription activated successfully!');
+                window.location.href = 'movie_website.html';
+                
+            } catch (error) {
+                console.error('Payment verification error:', error);
+                alert('Payment verification failed: ' + error.message);
+            }
+        }
+
+        // Test payment methods
+        function testPaymentMethod(method) {
+            alert(`Testing ${method} payment method!\n\nIn a real implementation, this would:\n- Open ${method} payment gateway\n- Show payment options\n- Process the transaction\n- Verify payment\n\nFor now, this is a demo showing the UI integration.`);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In - MovieFlix</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="movie_website.css">
+    <style>
+        /* Cinematic Background */
+        .auth-page {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            background: radial-gradient(1200px 600px at 10% 10%, rgba(229, 9, 20, 0.08), transparent 60%),
+                        radial-gradient(1200px 600px at 90% 90%, rgba(0, 102, 255, 0.06), transparent 60%),
+                        linear-gradient(135deg, #0f0f1a 0%, #181824 35%, #23243a 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        .auth-page::before {
+            content: '';
+            position: absolute;
+            inset: -20%;
+            background: url('https://image.tmdb.org/t/p/original/8ZTVqvKDQ8emSGUEMjsS4yHAwrp.jpg') center/cover no-repeat;
+            opacity: 0.15;
+            filter: blur(8px) saturate(120%);
+            transform: scale(1.1);
+        }
+        .auth-page::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(0,0,0,0.5), rgba(0,0,0,0.85));
+            pointer-events: none;
+        }
+
+        /* Card with glassmorphism and subtle hover */
+        .auth-card-elevated {
+            width: 100%;
+            max-width: 440px;
+            background: linear-gradient(180deg, rgba(30,30,40,0.7), rgba(20,20,28,0.9));
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 16px;
+            padding: 2.2rem;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.55), inset 0 0 0 1px rgba(255,255,255,0.03);
+            backdrop-filter: blur(10px);
+            transform: translateZ(0);
+            transition: transform 200ms ease, box-shadow 200ms ease;
+            position: relative;
+            z-index: 1;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+        .auth-card-elevated:hover { transform: translateY(-3px); box-shadow: 0 35px 80px rgba(0,0,0,0.6); }
+
+        .auth-header-compact { text-align: center; margin-bottom: 1.25rem; }
+        .auth-header-compact h1 { margin: 0; font-size: 2rem; color: #fff; letter-spacing: 0.02em; }
+        .auth-subtitle { margin-top: 0.5rem; color: #c9c9d1; font-size: 0.95rem; }
+
+        /* Form */
+        .auth-form-modern { display: grid; gap: 1rem; margin-top: 1.25rem; width: 100%; box-sizing: border-box; }
+        .auth-input {
+            width: 100%;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.12);
+            color: #fff;
+            border-radius: 12px;
+            padding: 0.95rem 1rem;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.02);
+            box-sizing: border-box;
+            max-width: 100%;
+        }
+        /* Input icons via inline SVG background */
+        #email.auth-input {
+            padding-left: 2.5rem;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' fill='white' viewBox='0 0 16 16'%3E%3Cpath d='M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v.5L8 9 0 4.5V4z'/%3E%3Cpath d='M0 6.697 5.803 10.396c.12.08.27.121.422.121s.302-.041.422-.121L16 6.697V12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6.697z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: 12px center;
+            background-size: 18px 18px;
+        }
+        #password.auth-input {
+            padding-left: 2.5rem;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' fill='white' viewBox='0 0 16 16'%3E%3Cpath d='M8 1a3 3 0 0 0-3 3v3h6V4a3 3 0 0 0-3-3z'/%3E%3Cpath d='M3 7h10a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: 12px center;
+            background-size: 18px 18px;
+        }
+        .auth-input:focus { outline: none; border-color: rgba(229, 9, 20, 0.6); box-shadow: 0 0 0 4px rgba(229, 9, 20, 0.12); }
+
+        /* Button with depth */
+        .auth-button {
+            width: 100%;
+            background: linear-gradient(180deg, #ff1631, #e50914 60%, #b40811);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            padding: 0.95rem 1rem;
+            font-weight: 800;
+            letter-spacing: 0.03em;
+            cursor: pointer;
+            box-shadow: 0 12px 28px rgba(229, 9, 20, 0.25), inset 0 -2px 0 rgba(0,0,0,0.25);
+            transition: transform 120ms ease, box-shadow 200ms ease, filter 120ms ease;
+        }
+        .auth-button:hover { transform: translateY(-2px); box-shadow: 0 18px 38px rgba(229, 9, 20, 0.35); filter: brightness(1.03); }
+        .auth-button:active { transform: translateY(0); filter: brightness(0.98); }
+
+        .auth-actions { display: flex; justify-content: space-between; margin-top: 0.75rem; }
+        .auth-link { color: #ff3b30; font-weight: 700; text-decoration: none; }
+        .auth-link:hover { text-decoration: underline; }
+        .auth-error { color: #ff6b6b; margin-top: 0.75rem; min-height: 1.25rem; }
+    </style>
+</head>
+<body>
+    <div class="auth-page">
+        <div class="auth-card-elevated">
+            <div class="auth-header-compact">
+                <h1>Welcome back</h1>
+                <div class="auth-subtitle">Sign in or create your account</div>
+            </div>
+            <form class="auth-form-modern" id="signin-form">
+                <input id="email" type="email" placeholder="Email" class="auth-input" required>
+                <input id="password" type="password" placeholder="Password" class="auth-input" required>
+                <button class="auth-button" type="submit">Sign In</button>
+            </form>
+            <div class="auth-actions">
+                <a class="auth-link" href="#" id="signup-link">Create account</a>
+                <a class="auth-link" href="movie_website.html">Back to home</a>
+            </div>
+            <div id="auth-error" class="auth-error"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = (location.hostname === 'localhost' || location.hostname === '127.0.0.1') ? 'http://localhost:5000/api' : 'https://example.com/api';
+
+        async function submitAuth(mode, email, password) {
+            const res = await fetch(`${API_BASE}/auth/${mode}`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password })
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'Request failed');
+            localStorage.setItem('movieflix-token', data.token);
+            localStorage.setItem('movieflix-user', JSON.stringify(data.user));
+            window.location.href = 'movie_website.html';
+        }
+
+        document.getElementById('signin-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value.trim();
+            const errorEl = document.getElementById('auth-error');
+            errorEl.textContent = '';
+            try { await submitAuth('signin', email, password); } catch (err) { errorEl.textContent = err.message; }
+        });
+
+        document.getElementById('signup-link').addEventListener('click', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value.trim();
+            const errorEl = document.getElementById('auth-error');
+            errorEl.textContent = '';
+            if (!email || !password) { errorEl.textContent = 'Enter email & password to create account'; return; }
+            try { await submitAuth('signup', email, password); } catch (err) { errorEl.textContent = err.message; }
+        });
+    </script>
+</body>
+</html>

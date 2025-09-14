@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OTP Demo - MovieFlix</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: #0a0a0a; color: #ffffff; padding: 20px; }
+        .container { max-width: 600px; margin: 0 auto; background: #1a1a1a; padding: 30px; border-radius: 10px; }
+        .header { text-align: center; margin-bottom: 30px; }
+        .header h1 { color: #e50914; font-size: 2rem; margin-bottom: 10px; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
+        .form-group input { width: 100%; padding: 12px; border: 1px solid #333; border-radius: 5px; background: #2a2a2a; color: white; font-size: 16px; }
+        .btn { background: #e50914; color: white; border: none; padding: 12px 24px; border-radius: 5px; cursor: pointer; font-size: 16px; margin: 5px; }
+        .btn:hover { background: #ff1a1a; }
+        .result { margin-top: 20px; padding: 15px; border-radius: 5px; font-family: monospace; }
+        .success { background: #28a745; color: white; }
+        .error { background: #dc3545; color: white; }
+        .info { background: #17a2b8; color: white; }
+        .otp-inputs { display: flex; gap: 10px; justify-content: center; margin: 20px 0; }
+        .otp-input { width: 50px; height: 50px; text-align: center; font-size: 20px; border: 2px solid #333; border-radius: 5px; background: #2a2a2a; color: white; }
+        .otp-input:focus { border-color: #e50914; outline: none; }
+        .console-log { background: #000; color: #0f0; padding: 15px; border-radius: 5px; margin-top: 20px; font-family: monospace; font-size: 12px; max-height: 200px; overflow-y: auto; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔐 OTP Authentication Demo</h1>
+            <p>Test the OTP system - OTP will be shown in server console</p>
+        </div>
+
+        <div class="form-group">
+            <label for="email">Email Address:</label>
+            <input type="email" id="email" placeholder="Enter your email" value="test@example.com">
+        </div>
+
+        <div style="text-align: center;">
+            <button class="btn" onclick="sendOTP()">Send OTP</button>
+        </div>
+
+        <div id="otpSection" style="display: none;">
+            <h3 style="text-align: center; margin: 20px 0;">Enter 6-digit OTP</h3>
+            <div class="otp-inputs">
+                <input type="text" class="otp-input" maxlength="1" onkeyup="moveToNext(this, 1)">
+                <input type="text" class="otp-input" maxlength="1" onkeyup="moveToNext(this, 2)">
+                <input type="text" class="otp-input" maxlength="1" onkeyup="moveToNext(this, 3)">
+                <input type="text" class="otp-input" maxlength="1" onkeyup="moveToNext(this, 4)">
+                <input type="text" class="otp-input" maxlength="1" onkeyup="moveToNext(this, 5)">
+                <input type="text" class="otp-input" maxlength="1" onkeyup="moveToNext(this, 6)">
+            </div>
+            <div style="text-align: center;">
+                <button class="btn" onclick="verifyOTP()">Verify OTP</button>
+                <button class="btn" onclick="resendOTP()">Resend OTP</button>
+            </div>
+        </div>
+
+        <div id="result" class="result" style="display: none;"></div>
+
+        <div class="console-log" id="consoleLog">
+            <div>🔍 Check the server console for OTP codes...</div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:5000/api';
+
+        function showResult(message, type = 'info') {
+            const result = document.getElementById('result');
+            result.style.display = 'block';
+            result.className = `result ${type}`;
+            result.textContent = message;
+        }
+
+        function addToConsole(message) {
+            const console = document.getElementById('consoleLog');
+            const div = document.createElement('div');
+            div.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            console.appendChild(div);
+            console.scrollTop = console.scrollHeight;
+        }
+
+        async function sendOTP() {
+            const email = document.getElementById('email').value;
+            if (!email) {
+                showResult('Please enter an email address', 'error');
+                return;
+            }
+
+            addToConsole(`Sending OTP to ${email}...`);
+
+            try {
+                const response = await fetch(`${API_BASE}/auth/send-otp`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, type: 'email' })
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showResult('✅ OTP sent successfully! Check server console for the code.', 'success');
+                    addToConsole('OTP sent successfully! Check server console.');
+                    document.getElementById('otpSection').style.display = 'block';
+                } else {
+                    showResult(`❌ Error: ${data.error}`, 'error');
+                    addToConsole(`Error: ${data.error}`);
+                }
+            } catch (error) {
+                showResult(`❌ Network error: ${error.message}`, 'error');
+                addToConsole(`Network error: ${error.message}`);
+            }
+        }
+
+        function moveToNext(input, position) {
+            if (input.value.length === 1) {
+                if (position < 6) {
+                    input.nextElementSibling.focus();
+                }
+            }
+        }
+
+        function getOTP() {
+            const inputs = document.querySelectorAll('.otp-input');
+            return Array.from(inputs).map(input => input.value).join('');
+        }
+
+        async function verifyOTP() {
+            const email = document.getElementById('email').value;
+            const otp = getOTP();
+            
+            if (otp.length !== 6) {
+                showResult('Please enter a 6-digit OTP', 'error');
+                return;
+            }
+
+            addToConsole(`Verifying OTP: ${otp} for ${email}...`);
+
+            try {
+                const response = await fetch(`${API_BASE}/auth/verify-otp`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, otp, type: 'email' })
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showResult('✅ OTP verified successfully! You can now proceed.', 'success');
+                    addToConsole('OTP verified successfully!');
+                } else {
+                    showResult(`❌ Error: ${data.error}`, 'error');
+                    addToConsole(`Verification error: ${data.error}`);
+                }
+            } catch (error) {
+                showResult(`❌ Network error: ${error.message}`, 'error');
+                addToConsole(`Network error: ${error.message}`);
+            }
+        }
+
+        function resendOTP() {
+            // Clear OTP inputs
+            document.querySelectorAll('.otp-input').forEach(input => input.value = '');
+            // Send new OTP
+            sendOTP();
+        }
+
+        // Auto-focus first OTP input when section is shown
+        document.addEventListener('DOMContentLoaded', function() {
+            addToConsole('OTP Demo loaded. Ready to test!');
+        });
+    </script>
+</body>
+</html>
+
