@@ -314,6 +314,10 @@ app.post('/api/auth/verify-otp', async (req, res) => {
     if (!otp) {
       return res.status(400).json({ error: 'OTP required' });
     }
+     if (!email) {
+      return res.status(400).json({ error: 'Email is required for OTP verification' });
+    }
+
 
     // Find the most recent OTP for this email/phone
     const otpRecord = await db.get(
@@ -333,15 +337,33 @@ app.post('/api/auth/verify-otp', async (req, res) => {
       return res.status(400).json({ error: 'Invalid OTP' });
     }
 
-    // Mark user as verified if they exist
-    if (email) {
-      await db.run('UPDATE users SET is_verified = 1 WHERE email = ?', [email]);
+    // OTP is valid, now find or create the user
+    let user = await db.get('SELECT * FROM users WHERE email = ?', [email]);
+
+    if (!user) {
+      // User does not exist, create a new one
+      // For OTP-based auth, we can use a dummy password hash
+      const dummyHash = await bcrypt.hash(crypto.randomBytes(16).toString('hex'), 10);
+      const result = await db.run(
+        'INSERT INTO users (email, password_hash, is_verified) VALUES (?, ?, 1)',
+        [email, dummyHash]
+      );
+      user = { id: result.lastID, email };
+    } else {
+      // User exists, ensure they are marked as verified
+      await db.run('UPDATE users SET is_verified = 1 WHERE id = ?', [user.id]);
     }
 
     // Delete the used OTP
     await db.run('DELETE FROM otps WHERE id = ?', [otpRecord.id]);
 
-    res.json({ message: 'OTP verified successfully' });
+    // Generate a token and send it back
+    const token = generateToken(user);
+    res.json({
+      message: 'OTP verified successfully',
+      token,
+      user: { id: user.id, email: user.email }
+    });
   } catch (error) {
     console.error('Verify OTP error:', error);
     res.status(500).json({ error: 'Failed to verify OTP' });
