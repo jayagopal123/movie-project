@@ -113,22 +113,27 @@
         .auth-link { color: #ff3b30; font-weight: 700; text-decoration: none; }
         .auth-link:hover { text-decoration: underline; }
         .auth-error { color: #ff6b6b; margin-top: 0.75rem; min-height: 1.25rem; }
+         .hidden { display: none; }
     </style>
 </head>
 <body>
     <div class="auth-page">
         <div class="auth-card-elevated">
             <div class="auth-header-compact">
-                <h1>Welcome back</h1>
-                <div class="auth-subtitle">Sign in or create your account</div>
+                <h1 id="auth-title">Welcome</h1>
+                <div class="auth-subtitle" id="auth-subtitle">Sign in or create an account with your email</div>
             </div>
-            <form class="auth-form-modern" id="signin-form">
-                <input id="email" type="email" placeholder="Email" class="auth-input" required>
-                <input id="password" type="password" placeholder="Password" class="auth-input" required>
-                <button class="auth-button" type="submit">Sign In</button>
+            <form class="auth-form-modern" id="otp-form">
+                <div id="email-step">
+                    <input id="email" type="email" placeholder="Email" class="auth-input" required>
+                    <button class="auth-button" type="button" id="send-otp-btn">Send OTP</button>
+                </div>
+                <div id="otp-step" class="hidden">
+                    <input id="otp" type="text" placeholder="OTP" class="auth-input" pattern="\d{6}" required>
+                    <button class="auth-button" type="submit" id="verify-otp-btn">Verify & Sign In</button>
+                </div>
             </form>
             <div class="auth-actions">
-                <a class="auth-link" href="#" id="signup-link">Create account</a>
                 <a class="auth-link" href="movie_website.html">Back to home</a>
             </div>
             <div id="auth-error" class="auth-error"></div>
@@ -138,34 +143,71 @@
     <script>
         const API_BASE = (location.hostname === 'localhost' || location.hostname === '127.0.0.1') ? 'http://localhost:5000/api' : 'https://example.com/api';
 
-        async function submitAuth(mode, email, password) {
-            const res = await fetch(`${API_BASE}/auth/${mode}`, {
-                method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password })
-            });
-            const data = await res.json();
-            if (!res.ok) throw new Error(data.error || 'Request failed');
-            localStorage.setItem('movieflix-token', data.token);
-            localStorage.setItem('movieflix-user', JSON.stringify(data.user));
-            window.location.href = 'movie_website.html';
-        }
+        const emailStep = document.getElementById('email-step');
+        const otpStep = document.getElementById('otp-step');
+        const sendOtpBtn = document.getElementById('send-otp-btn');
+        const otpForm = document.getElementById('otp-form');
+        const emailInput = document.getElementById('email');
+        const otpInput = document.getElementById('otp');
+        const errorEl = document.getElementById('auth-error');
+        const authSubtitle = document.getElementById('auth-subtitle');
 
-        document.getElementById('signin-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const email = document.getElementById('email').value.trim();
-            const password = document.getElementById('password').value.trim();
-            const errorEl = document.getElementById('auth-error');
+        sendOtpBtn.addEventListener('click', async () => {
+            const email = emailInput.value.trim();
+            if (!email) {
+                errorEl.textContent = 'Please enter your email address.';
+                return;
+            }
             errorEl.textContent = '';
-            try { await submitAuth('signin', email, password); } catch (err) { errorEl.textContent = err.message; }
+            sendOtpBtn.disabled = true;
+            sendOtpBtn.textContent = 'Sending...';
+
+            try {
+                const res = await fetch(`${API_BASE}/auth/send-otp`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: email, type: 'email' })
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Failed to send OTP');
+
+                emailStep.classList.add('hidden');
+                otpStep.classList.remove('hidden');
+                authSubtitle.textContent = `We've sent an OTP to ${email}`;
+                otpInput.focus();
+            } catch (err) {
+                errorEl.textContent = err.message;
+            } finally {
+                sendOtpBtn.disabled = false;
+                sendOtpBtn.textContent = 'Send OTP';
+            }
         });
 
-        document.getElementById('signup-link').addEventListener('click', async (e) => {
+        otpForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const email = document.getElementById('email').value.trim();
-            const password = document.getElementById('password').value.trim();
-            const errorEl = document.getElementById('auth-error');
+            const email = emailInput.value.trim();
+            const otp = otpInput.value.trim();
+            if (!otp || !/^\d{6}$/.test(otp)) {
+                errorEl.textContent = 'Please enter a valid 6-digit OTP.';
+                return;
+            }
             errorEl.textContent = '';
-            if (!email || !password) { errorEl.textContent = 'Enter email & password to create account'; return; }
-            try { await submitAuth('signup', email, password); } catch (err) { errorEl.textContent = err.message; }
+
+            try {
+                const res = await fetch(`${API_BASE}/auth/verify-otp`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: email, otp: otp, type: 'email' })
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'OTP verification failed');
+
+                localStorage.setItem('movieflix-token', data.token);
+                localStorage.setItem('movieflix-user', JSON.stringify(data.user));
+                window.location.href = 'movie_website.html';
+            } catch (err) {
+                errorEl.textContent = err.message;
+            }
         });
     </script>
 </body>
