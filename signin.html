@@ -135,6 +135,7 @@
             </form>
             <div class="auth-actions">
                 <a class="auth-link" href="movie_website.html">Back to home</a>
+                <a class="auth-link" href="#" id="resend-otp-link" style="display: none;">Resend OTP</a>
             </div>
             <div id="auth-error" class="auth-error"></div>
         </div>
@@ -151,8 +152,31 @@
         const otpInput = document.getElementById('otp');
         const errorEl = document.getElementById('auth-error');
         const authSubtitle = document.getElementById('auth-subtitle');
+        const resendOtpLink = document.getElementById('resend-otp-link');
+        const verifyOtpBtn = document.getElementById('verify-otp-btn');
 
-        sendOtpBtn.addEventListener('click', async () => {
+        let resendCooldown;
+
+        const startResendCooldown = () => {
+            resendOtpLink.style.pointerEvents = 'none';
+            resendOtpLink.style.opacity = '0.5';
+            let seconds = 30;
+            resendOtpLink.textContent = `Resend OTP in ${seconds}s`;
+
+            resendCooldown = setInterval(() => {
+                seconds--;
+                if (seconds > 0) {
+                    resendOtpLink.textContent = `Resend OTP in ${seconds}s`;
+                } else {
+                    clearInterval(resendCooldown);
+                    resendOtpLink.textContent = 'Resend OTP';
+                    resendOtpLink.style.pointerEvents = 'auto';
+                    resendOtpLink.style.opacity = '1';
+                }
+            }, 1000);
+        };
+
+        const sendOTP = async () => {
             const email = emailInput.value.trim();
             if (!email) {
                 errorEl.textContent = 'Please enter your email address.';
@@ -161,6 +185,7 @@
             errorEl.textContent = '';
             sendOtpBtn.disabled = true;
             sendOtpBtn.textContent = 'Sending...';
+            resendOtpLink.style.display = 'none';
 
             try {
                 const res = await fetch(`${API_BASE}/auth/send-otp`, {
@@ -175,12 +200,25 @@
                 otpStep.classList.remove('hidden');
                 authSubtitle.textContent = `We've sent an OTP to ${email}`;
                 otpInput.focus();
+
+                resendOtpLink.style.display = 'block';
+                startResendCooldown();
+
             } catch (err) {
                 errorEl.textContent = err.message;
             } finally {
                 sendOtpBtn.disabled = false;
                 sendOtpBtn.textContent = 'Send OTP';
             }
+        }
+
+        sendOtpBtn.addEventListener('click', sendOTP);
+
+        resendOtpLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            errorEl.textContent = '';
+            clearInterval(resendCooldown);
+            sendOTP();
         });
 
         otpForm.addEventListener('submit', async (e) => {
@@ -192,6 +230,8 @@
                 return;
             }
             errorEl.textContent = '';
+            verifyOtpBtn.disabled = true;
+            verifyOtpBtn.textContent = 'Verifying...';
 
             try {
                 const res = await fetch(`${API_BASE}/auth/verify-otp`, {
@@ -207,6 +247,9 @@
                 window.location.href = 'movie_website.html';
             } catch (err) {
                 errorEl.textContent = err.message;
+            } finally {
+                verifyOtpBtn.disabled = false;
+                verifyOtpBtn.textContent = 'Verify & Sign In';
             }
         });
     </script>

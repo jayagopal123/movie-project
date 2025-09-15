@@ -43,50 +43,19 @@
         <div class="plans-container" id="plansContainer">
             <!-- Plans will be loaded here -->
         </div>
-
-        <!-- Payment Methods Section -->
-        <div class="payment-section" style="margin-top: 3rem; padding: 2rem; background: #1a1a1a; border-radius: 16px;">
-            <h2 style="text-align: center; margin-bottom: 2rem; color: #e50914;">Payment Methods</h2>
-            <div class="payment-methods-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
-                <div class="payment-method" style="background: #2a2a2a; padding: 1rem; border-radius: 8px; text-align: center; cursor: pointer;" onclick="testPaymentMethod('UPI')">
-                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">📱</div>
-                    <div style="font-weight: 600;">UPI</div>
-                    <div style="font-size: 0.9rem; color: #ccc;">Google Pay, PhonePe, Paytm</div>
-                </div>
-                <div class="payment-method" style="background: #2a2a2a; padding: 1rem; border-radius: 8px; text-align: center; cursor: pointer;" onclick="testPaymentMethod('Net Banking')">
-                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">🏦</div>
-                    <div style="font-weight: 600;">Net Banking</div>
-                    <div style="font-size: 0.9rem; color: #ccc;">All Major Banks</div>
-                </div>
-                <div class="payment-method" style="background: #2a2a2a; padding: 1rem; border-radius: 8px; text-align: center; cursor: pointer;" onclick="testPaymentMethod('Card')">
-                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">💳</div>
-                    <div style="font-weight: 600;">Credit/Debit Card</div>
-                    <div style="font-size: 0.9rem; color: #ccc;">Visa, MasterCard, RuPay</div>
-                </div>
-                <div class="payment-method" style="background: #2a2a2a; padding: 1rem; border-radius: 8px; text-align: center; cursor: pointer;" onclick="testPaymentMethod('Wallet')">
-                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">👛</div>
-                    <div style="font-weight: 600;">Digital Wallets</div>
-                    <div style="font-size: 0.9rem; color: #ccc;">Amazon Pay, Freecharge</div>
-                </div>
-                <div class="payment-method" style="background: #2a2a2a; padding: 1rem; border-radius: 8px; text-align: center; cursor: pointer;" onclick="testPaymentMethod('EMI')">
-                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">💳</div>
-                    <div style="font-weight: 600;">EMI</div>
-                    <div style="font-size: 0.9rem; color: #ccc;">No Cost EMI Available</div>
-                </div>
-            </div>
-        </div>
     </div>
 
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script>
-        // Basic functionality will be added here
+        const API_BASE = (location.hostname === 'localhost' || location.hostname === '127.0.0.1') ? 'http://localhost:5000/api' : '/api';
+
         document.addEventListener('DOMContentLoaded', function() {
             loadPlans();
         });
 
         async function loadPlans() {
             try {
-                const response = await fetch('http://localhost:5000/api/subscriptions/plans');
+                const response = await fetch(`${API_BASE}/subscriptions/plans`);
                 const data = await response.json();
                 renderPlans(data.plans);
             } catch (error) {
@@ -114,15 +83,19 @@
         async function subscribeToPlan(planId) {
             // Check if user is authenticated
             const token = localStorage.getItem('movieflix-token');
-            if (!token) {
+            const userStr = localStorage.getItem('movieflix-user');
+
+            if (!token || !userStr) {
                 alert('Please sign in to subscribe');
-                window.location.href = 'movie_website.html';
+                window.location.href = 'signin.html';
                 return;
             }
 
+            const user = JSON.parse(userStr);
+
             try {
                 // Create payment order
-                const response = await fetch('http://localhost:5000/api/payments/create-order', {
+                const response = await fetch(`${API_BASE}/payments/create-order`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -149,8 +122,8 @@
                         verifyPayment(response, planId);
                     },
                     prefill: {
-                        name: 'User Name',
-                        email: 'user@example.com'
+                        name: user.name || 'MovieFlix User',
+                        email: user.email || 'test@example.com'
                     },
                     theme: {
                         color: '#e50914'
@@ -219,7 +192,7 @@
 
         async function verifyPayment(paymentResponse, planId) {
             try {
-                const response = await fetch('http://localhost:5000/api/payments/verify', {
+                const response = await fetch(`${API_BASE}/payments/verify`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -248,10 +221,6 @@
             }
         }
 
-        // Test payment methods
-        function testPaymentMethod(method) {
-            alert(`Testing ${method} payment method!\n\nIn a real implementation, this would:\n- Open ${method} payment gateway\n- Show payment options\n- Process the transaction\n- Verify payment\n\nFor now, this is a demo showing the UI integration.`);
-        }
     </script>
 </body>
 </html>
