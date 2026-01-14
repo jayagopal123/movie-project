@@ -29,6 +29,16 @@ A full-featured movie streaming website with OTP authentication, subscription pl
 - **Watch History**: Track recently viewed content
 - **Modern UI**: Netflix-inspired design
 
+📸 Screenshots / Demo
+
+<img width="1883" height="903" alt="image" src="https://github.com/user-attachments/assets/63b28acb-d1d1-4078-a509-e798c3322a4a" />
+<img width="1885" height="912" alt="image" src="https://github.com/user-attachments/assets/e86daf39-8b5f-4e17-8615-ab4fc69c933a" />
+<img width="1885" height="914" alt="image" src="https://github.com/user-attachments/assets/3b5ed00e-011e-4cd1-b209-bb98f225dd54" />
+<img width="1886" height="916" alt="image" src="https://github.com/user-attachments/assets/68b2556e-ac35-4afc-9245-058c122322ab" />
+<img width="1885" height="916" alt="image" src="https://github.com/user-attachments/assets/a547d82e-bf64-42e1-b53d-d673a72a8499" />
+<img width="1888" height="916" alt="image" src="https://github.com/user-attachments/assets/27a2874b-c6d0-4d95-83ab-3a96a702dddc" />
+
+
 ## Setup Instructions
 
 ### 1. Install Dependencies
@@ -166,4 +176,5 @@ movie-project/
 ## License
 
 This project is for educational purposes. Please respect the terms of service for TMDB and Razorpay APIs.
+
 
